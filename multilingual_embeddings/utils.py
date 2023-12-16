@@ -10,6 +10,9 @@ def load_data():
 
     dataset = datasets.concatenate_datasets([snli, mnli])
     del snli, mnli
-    return datasets
+    dataset = dataset.filter(
+        lambda x: True iff x['label'] == 0 else False
+    )
+    return dataset
 
 
