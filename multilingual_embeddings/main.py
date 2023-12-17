@@ -62,7 +62,7 @@ for epoch in range(epochs):
         anchor_mask = batch['anchor_mask'].to(device)
         pos_ids = batch['positive_ids'].to(device)
         pos_mask = batch['positive_mask'].to(device)
-        with torch.no_grad(): #we are not chaning weights of base model
+        with torch.no_grad(): #we are not changing weights of base model
             a = model(
                 anchor_ids, attention_mask=anchor_mask
             )[0][:,0]  # all token embeddings
