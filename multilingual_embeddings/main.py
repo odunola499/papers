@@ -52,7 +52,7 @@ model.to(device)
 scale = 20.0
 optim = torch.optim.Adam(model.parameters(), lr=2e-5)
 epochs = 2
-pooler.to_device()
+pooler.to(device)
 
 for epoch in range(epochs):
     loop = tqdm(loader, leave = True)
