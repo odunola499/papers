@@ -4,6 +4,11 @@ from transformers import AutoTokenizer, AutoModel
 #let us say that we have sentence pairs of english and yoruba 
 #first we load the main model
 from huggingface_hub import login
+from torch.utils.data import DataLoader
+from utils import load_data
+from tqdm.auto import tqdm
+
+data = load_data()
 
 huggingface_api = input('Give huggingface api with write access: ')
 login(token = huggingface_api)
@@ -27,7 +32,7 @@ class CompositeModel(nn.Module):
     super().__init__()
     self.base = AutoModel.from_pretrained('BAAI/bge-large-en-v1.5')
     self.pool = Pooler()
-    self.pool.load_state_dict(torch.load('final_layer.pth'))
+    self.pool.load_state_dict(torch.load('multilingual_embeddings/final_layer.pth'))
   def forward(self, input_ids, attention_mask, token_type_ids):
     out = self.base(input_ids = input_ids, attention_mask = attention_mask, token_type_ids = token_type_ids)[0][:, 0]
     out = self.pool(out)
@@ -39,17 +44,22 @@ student_model = AutoModel.from_pretrained('BAAI/bge-base-en-v1.5')
 
 #utils.load_data returns a loader that dishes out source, target pairs. all we have to do is give it a batch size
 
-loader = None
+
 alpha = 0.5
+batch_size = 64
 epochs = 4
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 reference.to(device)
 student_model.to(device)
-loss = MSELoss()
+loader = DataLoader(data, batch_size=batch_size)
+loss_func = MSELoss()
 optim = torch.optim.Adam(student_model.parameters(), lr=2e-5)
+
+
+
 for epoch in range(epochs):
     train_loss =0.0
-    for batch in loader:
+    for batch in tqdm(loader, leave = True):
         optim.zero_grad()
         english_ids = batch['english_ids'].to(device)
         english_mask = batch['english_mask'].to(device)
@@ -59,10 +69,10 @@ for epoch in range(epochs):
         mono_token_ids = batch['mono_token_ids'].to(device)
         with torch.no_grad():
             reference_logits = reference(english_ids, english_mask, english_token_ids)
-        student_mono_logits = student_model(mono_ids, mono_mask, mono_token_ids)
-        student_english_logits = student_model(english_ids, english_mask, english_token_ids)
-        mono_loss = loss(student_mono_logits, reference_logits)
-        english_loss = loss(student_mono_logits, student_english_logits)
+        student_mono_logits = student_model(mono_ids, mono_mask, mono_token_ids)[0][:,0]
+        student_english_logits = student_model(english_ids, english_mask, english_token_ids)[0][:,0]
+        mono_loss = loss_func(student_mono_logits, reference_logits)
+        english_loss = loss_func(student_mono_logits, student_english_logits)
         loss = (alpha * mono_loss) + ((1 - alpha) * english_loss)
         train_loss += loss
         loss.backward()
