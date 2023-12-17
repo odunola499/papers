@@ -86,5 +86,5 @@ for epoch in range(epochs):
 
 
 
-torch.save(pool.state_dict(), 'final_layer.pth')
+torch.save(pooler.state_dict(), 'final_layer.pth')
 
