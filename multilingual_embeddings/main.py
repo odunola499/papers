@@ -4,16 +4,16 @@ from torch import nn
 from transformers import AutoTokenizer, AutoModel
 from torch.utils.data import DataLoader
 import torch
-from transformers.optimization import get_linear_schedule_with_warmup
+
 from tqdm.auto import tqdm
 import scipy
 
-huggingface_key = os.environ['HUGGINGFACE_API_KEY']
+
 
 dataset = load_data()
 from huggingface_hub import login
 
-login(huggingface_key)
+
 
 model = AutoModel.from_pretrained('BAAI/bge-large-en-v1.5')
                                   
