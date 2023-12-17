@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader
 import torch
 from transformers.optimization import get_linear_schedule_with_warmup
 from tqdm.auto import tqdm
-
+import scipy
 
 huggingface_key = os.environ['HUGGINGFACE_API_KEY']
 
@@ -32,7 +32,7 @@ class Pooler(nn.Module):
     
 
 pooler = Pooler()
-model.pooler = Pooler()
+
 #now we have our model
 
 #we need to freeze all layers except the pooling module
@@ -52,22 +52,26 @@ model.to(device)
 scale = 20.0
 optim = torch.optim.Adam(model.parameters(), lr=2e-5)
 epochs = 2
-
+pooler.to_device()
 
 for epoch in range(epochs):
     loop = tqdm(loader, leave = True)
     for batch in loop:
         optim.zero_grad()
-        anchor_ids = batch['anchor']['input_ids'].to(device)
-        anchor_mask = batch['anchor']['attention_mask'].to(device)
-        pos_ids = batch['positive']['input_ids'].to(device)
-        pos_mask = batch['positive']['attention_mask'].to(device)
-        a = model(
-            anchor_ids, attention_mask=anchor_mask
-        )[0]  # all token embeddings
-        p = model(
-            pos_ids, attention_mask=pos_mask
-        )[0]
+        anchor_ids = batch['anchor_ids'].to(device)
+        anchor_mask = batch['anchor_mask'].to(device)
+        pos_ids = batch['positive_ids'].to(device)
+        pos_mask = batch['positive_mask'].to(device)
+        with torch.no_grad(): #we are not chaning weights of base model
+            a = model(
+                anchor_ids, attention_mask=anchor_mask
+            )[0][:,0]  # all token embeddings
+            p = model(
+                pos_ids, attention_mask=pos_mask
+            )[0][:,0]
+        a = pooler(a)
+        p = pooler(p)
+        
         scores = torch.stack([
             cos_sim(
                 a_i.reshape(1, a_i.shape[0]), p
@@ -82,5 +86,5 @@ for epoch in range(epochs):
 
 
 
-model.push_to_hub('odunola/baai_768')
+torch.save(pool.state_dict(), 'final_layer.pth')
 
