@@ -40,6 +40,7 @@ student_model = AutoModel.from_pretrained('BAAI/bge-base-en-v1.5')
 #utils.load_data returns a loader that dishes out source, target pairs. all we have to do is give it a batch size
 
 loader = None
+alpha = 0.5
 epochs = 4
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 reference.to(device)
@@ -62,7 +63,7 @@ for epoch in range(epochs):
         student_english_logits = student_model(english_ids, english_mask, english_token_ids)
         mono_loss = loss(student_mono_logits, reference_logits)
         english_loss = loss(student_mono_logits, student_english_logits)
-        loss = (0.5 * mono_loss) + (0.5 * english_loss)
+        loss = (alpha * mono_loss) + ((1 - alpha) * english_loss)
         train_loss += loss
         loss.backward()
         optim.step()
