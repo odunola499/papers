@@ -10,7 +10,7 @@ def load_data():
 
     dataset = dataset.map(
         lambda x: tokenizer(
-            x['eng'], max_length = 256, padding = 'max_length', truncation = True
+            x['eng'], max_length = 128, padding = 'max_length', truncation = True
         ), batched = True
     )
     dataset = dataset.rename_column('input_ids', 'english_ids')

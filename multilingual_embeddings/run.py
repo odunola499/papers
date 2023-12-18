@@ -47,4 +47,4 @@ with torch.no_grad():
 sentence_xq = torch.nn.functional.normalize(sentence_xq, p=2, dim=1)
 query_xq = torch.nn.functional.normalize(query_xq, p=2, dim=1)
 
-cos_sim(query_xq, sentence_xq)
+print(cos_sim(query_xq, sentence_xq))
