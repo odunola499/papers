@@ -3,16 +3,17 @@ import torch
 from transformers import AutoTokenizer, AutoModel
 #let us say that we have sentence pairs of english and yoruba 
 #first we load the main model
+import os
 from huggingface_hub import login
 from torch.utils.data import DataLoader
 from utils import load_data
 from tqdm.auto import tqdm
-
-data = load_data()
-
-huggingface_api = input('Give huggingface api with write access: ')
-login(token = huggingface_api)
 from torch.nn import MSELoss
+data = load_data()
+huggingface_api = os.environ['HUGGINGFACE_API_KEY']
+
+login(token = huggingface_api)
+
 tokenizer = AutoTokenizer.from_pretrained('BAAI/bge-large-en-v1.5')
 class Pooler(nn.Module):
     def __init__(self):
@@ -47,7 +48,7 @@ student_model = AutoModel.from_pretrained('BAAI/bge-base-en-v1.5')
 
 alpha = 0.5
 batch_size = 64
-epochs = 2
+epochs = 3
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 reference.to(device)
 student_model.to(device)
