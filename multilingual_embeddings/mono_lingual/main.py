@@ -9,6 +9,7 @@ from torch.utils.data import DataLoader
 from utils import load_data
 from tqdm.auto import tqdm
 from torch.nn import MSELoss
+
 data = load_data()
 huggingface_api = os.environ['HUGGINGFACE_API_KEY']
 
