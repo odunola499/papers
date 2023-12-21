@@ -9,6 +9,7 @@ from torch.utils.data import DataLoader
 from utils import load_data
 from tqdm.auto import tqdm
 from torch.nn import MSELoss
+import torch.nn.functional as F
 
 data = load_data()
 huggingface_api = os.environ['HUGGINGFACE_API_KEY']
@@ -47,14 +48,15 @@ student_model = AutoModel.from_pretrained('BAAI/bge-base-en-v1.5')
 #utils.load_data returns a loader that dishes out source, target pairs. all we have to do is give it a batch size
 
 
-alpha = 0.5
+alpha = 0.
 batch_size = 64
-epochs = 3
+epochs = 1
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 reference.to(device)
 student_model.to(device)
 loader = DataLoader(data, batch_size=batch_size)
-loss_func = MSELoss()
+mse_loss_func = MSELoss()
+kld_loss_func = nn.KLDivLoss(reduction = 'batchmean')
 optim = torch.optim.Adam(student_model.parameters(), lr=2e-5)
 
 
@@ -73,17 +75,28 @@ for epoch in range(epochs):
             reference_logits = reference(english_ids, english_mask, english_token_ids)
         student_mono_logits = student_model(mono_ids, mono_mask, mono_token_ids)[0][:,0]
         student_english_logits = student_model(english_ids, english_mask, english_token_ids)[0][:,0]
-        mono_loss = loss_func(student_mono_logits, reference_logits)
-        english_loss = loss_func(student_mono_logits, student_english_logits)
-        loss = (alpha * mono_loss) + ((1 - alpha) * english_loss)
+
+        mse_mono_loss = mse_loss_func(student_mono_logits, reference_logits)
+        mse_english_loss = mse_loss_func(student_mono_logits, student_english_logits)
+        mse_loss = (alpha * mse_mono_loss) + ((1 - alpha) * mse_english_loss)
+
+        kld_mono_loss = kld_loss_func(
+           F.log_softmax(student_mono_logits), F.softmax(reference_logits)
+        )
+        kld_english_loss = kld_loss_func(
+           F.log_softmax(student_mono_logits), F.softmax(student_english_logits)
+        )
+        kld_loss = (alpha * kld_mono_loss) + ((1 - alpha) * kld_english_loss)
+
+        loss = (alpha * kld_loss) + ((1 - alpha) * mse_loss)
         train_loss += loss
         loss.backward()
         optim.step()
     print(f'after {epoch + 1} epochs, loss  is {loss}')
     
 
-student_model.push_to_hub('odunola/yoruba-embedding-model')
-tokenizer.push_to_hub('odunola/yoruba-embedding-model')
+student_model.push_to_hub('odunola/yoruba-embedding-model-kld')
+tokenizer.push_to_hub('odunola/yoruba-embedding-model-kld')
 
 
 
