@@ -10,11 +10,15 @@ from utils import load_data
 from tqdm.auto import tqdm
 from torch.nn import MSELoss
 import torch.nn.functional as F
+import wandb
+
 
 data = load_data()
 huggingface_api = os.environ['HUGGINGFACE_API_KEY']
-
+wandb_api = os.environ['WANDB_API_KEY']
 login(token = huggingface_api)
+wandb.login(key = wandb_api)
+
 
 tokenizer = AutoTokenizer.from_pretrained('BAAI/bge-large-en-v1.5')
 class Pooler(nn.Module):
@@ -48,7 +52,7 @@ student_model = AutoModel.from_pretrained('BAAI/bge-base-en-v1.5')
 #utils.load_data returns a loader that dishes out source, target pairs. all we have to do is give it a batch size
 
 
-alpha = 0.
+alpha = 0.5
 batch_size = 64
 epochs = 1
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
@@ -59,7 +63,10 @@ mse_loss_func = MSELoss()
 kld_loss_func = nn.KLDivLoss(reduction = 'batchmean')
 optim = torch.optim.Adam(student_model.parameters(), lr=2e-5)
 
-
+wandb.init(project = "multilingual distillation", entity = 'jenrola2292', name = 'second run')
+wandb.config = {
+   'learning_rate':2e-5, "epochs": epochs, "batch_size":batch_size, "alpha": alpha
+}
 
 for epoch in range(epochs):
     train_loss =0.0
@@ -81,10 +88,10 @@ for epoch in range(epochs):
         mse_loss = (alpha * mse_mono_loss) + ((1 - alpha) * mse_english_loss)
 
         kld_mono_loss = kld_loss_func(
-           F.log_softmax(student_mono_logits), F.softmax(reference_logits)
+           F.log_softmax(student_mono_logits, dim = -1), F.softmax(reference_logits, dim = -1)
         )
         kld_english_loss = kld_loss_func(
-           F.log_softmax(student_mono_logits), F.softmax(student_english_logits)
+           F.log_softmax(student_english_logits, dim = -1), F.log_softmax(student_mono_logits, dim = -1)
         )
         kld_loss = (alpha * kld_mono_loss) + ((1 - alpha) * kld_english_loss)
 
@@ -92,7 +99,11 @@ for epoch in range(epochs):
         train_loss += loss
         loss.backward()
         optim.step()
-    print(f'after {epoch + 1} epochs, loss  is {loss}')
+
+        wandb.log({'epoch': epoch+1,'batch_loss': loss})
+    wandb.log({'epoch': epoch+1, 'epoch_loss': train_loss / len(loader)})
+    torch.save(student_model.state_dict(), './model.pt')
+    print(f'after {epoch + 1} epochs, loss  is {train_loss / len(loader)}')
     
 
 student_model.push_to_hub('odunola/yoruba-embedding-model-kld')

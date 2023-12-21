@@ -25,14 +25,15 @@ pooler.load_state_dict(torch.load('final_layer.pth'))
 cos_sim = nn.CosineSimilarity()
 #you can change values of sentences an query
 sentences = [
-    "AI has revolutionized various industries, transforming how we interact with modern technology.",
-    "The migration patterns of birds have fascinated scientists for centuries, revealing complex behaviors in nature.",
-    "From ancient civilizations to modern society, the evolution of transportation has shaped our way of life.",
-    "The culinary arts have always been a source of cultural pride, offering a diverse tapestry of flavors from around the world.",
-    "The exploration of space continues to captivate our imaginations, pushing the boundaries of scientific discovery."
+    "The depletion of the ozone layer poses a serious threat to our planet's atmosphere, requiring urgent international cooperation.",
+    "Political unrest in certain regions has led to widespread humanitarian crises, necessitating diplomatic interventions for stability.",
+    "Renewable energy sources offer a sustainable solution to reducing carbon emissions, mitigating the impacts of climate change.",
+    "Cultural diversity enriches our society, fostering tolerance and understanding among different ethnic groups.",
+    "Advancements in medical technology have revolutionized healthcare, improving treatment outcomes and patient care."
 ]
 
-query = 'The advancement of artificial intelligence has transformed numerous industries, revolutionizing how we interact with technology'
+
+query = 'Climate change is a pressing global concern that demands immediate action from world leaders'
 
 
 query_tensors = tokenizer(query, padding = True, truncation = True, max_length = 50, return_tensors='pt')
