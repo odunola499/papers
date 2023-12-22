@@ -103,7 +103,7 @@ for epoch in range(epochs):
         target_in_ids = batch['es_input_ids'].to(device)
         target_out_ids = batch['es_target_ids'].to(device)
         optimizer.zero_grad()
-        output = model(context_ids, target_in_ids)
+        output = model((context_ids, target_in_ids))
         loss = loss_func(output.view(-1, tokenizer.vocab_size),target_out_ids.view(-1))
         train_loss += loss.item()
         loss.backward()
@@ -117,7 +117,7 @@ for epoch in range(epochs):
         target_in_ids = batch['es_input_ids'].to(device)
         target_out_ids = batch['es_target_ids'].to(device)
         with torch.no_grad():
-            output = model(context_ids, target_in_ids)
+            output = model((context_ids, target_in_ids))
             loss = loss_func(output.view(-1, tokenizer.vocab_size),target_out_ids.view(-1))
         eval_loss += loss.item()
     eval_loss /= len(valid_loader)
