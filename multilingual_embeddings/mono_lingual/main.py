@@ -18,7 +18,7 @@ huggingface_api = os.environ['HUGGINGFACE_API_KEY']
 wandb_api = os.environ['WANDB_API_KEY']
 login(token = huggingface_api)
 wandb.login(key = wandb_api)
-
+device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
 tokenizer = AutoTokenizer.from_pretrained('BAAI/bge-large-en-v1.5')
 class Pooler(nn.Module):
@@ -39,7 +39,7 @@ class CompositeModel(nn.Module):
     super().__init__()
     self.base = AutoModel.from_pretrained('BAAI/bge-large-en-v1.5')
     self.pool = Pooler()
-    self.pool.load_state_dict(torch.load('multilingual_embeddings/final_layer.pth'))
+    self.pool.load_state_dict(torch.load('multilingual_embeddings/final_layer.pth', map_location=device))
   def forward(self, input_ids, attention_mask, token_type_ids):
     out = self.base(input_ids = input_ids, attention_mask = attention_mask, token_type_ids = token_type_ids)[0][:, 0]
     out = self.pool(out)
@@ -55,7 +55,7 @@ student_model = AutoModel.from_pretrained('BAAI/bge-base-en-v1.5')
 alpha = 0.5
 batch_size = 64
 epochs = 1
-device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+
 reference.to(device)
 student_model.to(device)
 loader = DataLoader(data, batch_size=batch_size)
@@ -91,8 +91,7 @@ for epoch in range(epochs):
            F.log_softmax(student_mono_logits, dim = -1), F.softmax(reference_logits, dim = -1)
         )
         kld_english_loss = kld_loss_func(
-           F.log_softmax(student_english_logits, dim = -1), F.log_softmax(student_mono_logits, dim = -1)
-        )
+            F.log_softmax(student_mono_logits, dim = -1), F.softmax(student_english_logits, dim = -1))
         kld_loss = (alpha * kld_mono_loss) + ((1 - alpha) * kld_english_loss)
 
         loss = (alpha * kld_loss) + ((1 - alpha) * mse_loss)
