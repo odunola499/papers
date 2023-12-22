@@ -22,7 +22,7 @@ device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cp
 
 model = AutoModel.from_pretrained('odunola/yoruba-embedding-model-kld')
 
-batch_size = 32
+batch_size = 16
 loader = DataLoader(data, batch_size = batch_size)
 
 cos_sim = nn.CosineSimilarity().to(device)
