@@ -121,6 +121,7 @@ for epoch in range(epochs):
             loss = loss_func(output.view(-1, tokenizer.vocab_size),target_out_ids.view(-1))
         eval_loss += loss.item()
     eval_loss /= len(valid_loader)
+    torch.save(model.state_dict(), 'model.pth')
 
     print(f"after epoch {epoch + 1}: Training Loss is {train_loss}")
     print(f"after epoch {epoch + 1}: Training Loss is {eval_loss}")
