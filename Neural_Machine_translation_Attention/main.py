@@ -1,7 +1,6 @@
 from utils import load_data, tokenizer
 import torch
 from torch import nn
-from transformers import AutoTokenizer, AutoModel
 from torch.utils.data import DataLoader
 from torch.optim import AdamW
 from torch.nn import CrossEntropyLoss
@@ -88,7 +87,7 @@ optimizer = AdamW(model.parameters())
 loss_func = CrossEntropyLoss()
 epochs = 20
 #batch_size = input('input batch size: ')
-batch_size = 32
+batch_size = 16
 train_loader = DataLoader(train_data, batch_size = batch_size)
 valid_loader = DataLoader(valid_data, batch_size = batch_size)
 test_loader = DataLoader(test_data, batch_size = batch_size)
