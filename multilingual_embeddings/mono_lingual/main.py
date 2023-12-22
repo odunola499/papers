@@ -54,7 +54,7 @@ student_model = AutoModel.from_pretrained('BAAI/bge-base-en-v1.5')
 
 alpha = 0.5
 batch_size = 64
-epochs = 1
+epochs = 2
 
 reference.to(device)
 student_model.to(device)
