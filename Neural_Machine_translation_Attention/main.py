@@ -10,7 +10,7 @@ from tqdm.auto import tqdm
 vocab_size = tokenizer.vocab_size
 embedding_dim = 384
 units = 128
-train_data, valid_data, test_data = load_data(subset = True)
+train_data, valid_data, test_data = load_data(subset = False)
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 target_embedder = nn.Embedding(tokenizer.vocab_size,units)
 
@@ -85,7 +85,7 @@ print(f"Total trainable parameters: {total_params}")
 
 optimizer = AdamW(model.parameters())
 loss_func = CrossEntropyLoss()
-epochs = 20
+epochs = 6
 #batch_size = input('input batch size: ')
 batch_size = 16
 train_loader = DataLoader(train_data, batch_size = batch_size)
@@ -123,6 +123,6 @@ for epoch in range(epochs):
     torch.save(model.state_dict(), 'model.pth')
 
     print(f"after epoch {epoch + 1}: Training Loss is {train_loss}")
-    print(f"after epoch {epoch + 1}: Training Loss is {eval_loss}")
+    print(f"after epoch {epoch + 1}: Evaluation Loss is {eval_loss}")
 
     
