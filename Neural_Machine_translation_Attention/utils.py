@@ -4,11 +4,11 @@ from transformers import AutoTokenizer
 
 tokenizer = AutoTokenizer.from_pretrained('sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2')
 #english to spanish
-max_length = 384
+max_length = 512
 def get_es_input_target(batch, max_length=max_length):
     # Tokenize the Spanish translation with no padding/truncation
     tokens = tokenizer([i['es'] for i in batch['translation']], add_special_tokens=False)
-    ids = tokens['input_ids']
+    ids = [i[:max_length] for i in tokens['input_ids']] #for truncation
 
     new_ids_target, new_masks_target, new_token_ids_target = [], [], []
     for id in ids:
@@ -46,11 +46,6 @@ def get_es_input_target(batch, max_length=max_length):
     }
 
 
-
-
-
-
-
 def preprocess_target_out(batch):
     texts = [i['es'] for i in batch['translation']]
 
@@ -70,7 +65,7 @@ def preprocess_data(dataset, max_length = max_length):
     dataset.set_format(type = 'torch', output_all_columns = True)
     return dataset
 
-def load_data(subset = True):
+def load_data(subset = False):
     if subset:
         dataset = load_dataset('opus100','en-es')['validation']
     else:
