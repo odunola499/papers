@@ -80,3 +80,4 @@ def load_data():
     data_1, data_2 = load_data_pairs(), load_data_embs()
     dataset = datasets.concatenate_datasets([data_1, data_2])
     dataset.set_format(type = 'torch', output_all_columns = True)
+    return dataset
