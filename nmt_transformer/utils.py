@@ -65,7 +65,7 @@ def preprocess_data(dataset, max_length = max_length):
     dataset.set_format(type = 'torch', output_all_columns = True)
     return dataset
 
-def load_data(subset = False):
+def load_data(subset = True):
     if subset:
         dataset = load_dataset('opus100','en-es')['validation']
     else:
