@@ -1,6 +1,6 @@
 from torch import nn
 import torch
-from transformers import AutoTokenizer, AutoModel
+from transformers import AutoModel
 #let us say that we have sentence pairs of english and yoruba 
 #first we load the main model
 import os
@@ -8,7 +8,6 @@ from huggingface_hub import login
 from torch.utils.data import DataLoader
 from utils import load_data, tokenizer
 from tqdm.auto import tqdm
-from torch.nn import MSELoss
 import torch.nn.functional as F
 import wandb
 
@@ -20,7 +19,7 @@ login(token = huggingface_api)
 wandb.login(key = wandb_api)
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
-model = AutoModel.from_pretrained('odunola/yoruba-embedding-model-kld')
+model = AutoModel.from_pretrained('odunola/bge-base-en-v1.5-yoruba')
 
 batch_size = 16
 loader = DataLoader(data, batch_size = batch_size)

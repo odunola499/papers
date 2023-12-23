@@ -34,7 +34,7 @@ def load_data_pairs():
     dataset = dataset.rename_column('input_ids', 'anchor_ids')
     dataset = dataset.rename_column('attention_mask', 'anchor_mask')
     dataset = dataset.rename_column('token_type_ids', 'anchor_token_ids')
-    dataset = dataset.remove_columns(['eng', 'yor'])
+    dataset = dataset.remove_columns(['eng', 'yor', ])
     #dataset.set_format(type = 'torch', output_all_columns=True)
     return dataset
 
@@ -51,13 +51,12 @@ def load_data_embs():
         lambda x: True if x['label'] == 0 else False
     )
     dataset = dataset.shuffle().select(range(150000))
-    
     dataset = dataset.map(
-            lambda x: tokenizer(
-                x['premise'], max_length = 256, padding = 'max_length',
-                truncation = True
-            ), batched = True
-            )
+    lambda x: tokenizer(
+        x['premise'], max_length = 256, padding = 'max_length',
+        truncation = True
+    ), batched = True
+    )
 
     dataset = dataset.rename_column('input_ids', 'anchor_ids')
     dataset = dataset.rename_column('attention_mask', 'anchor_mask')
@@ -77,9 +76,7 @@ def load_data_embs():
     #dataset.set_format(type='torch', output_all_columns=True)
     return dataset
 
-
 def load_data():
     data_1, data_2 = load_data_pairs(), load_data_embs()
     dataset = datasets.concatenate_datasets([data_1, data_2])
-    dataset.set_format(type='torch', output_all_columns=True)
-    return dataset.shuffle()
+    dataset.set_format(type = 'torch', output_all_columns = True)
