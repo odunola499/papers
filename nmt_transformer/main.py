@@ -6,6 +6,8 @@ from torch.nn import CrossEntropyLoss
 from torch.optim import AdamW
 import wandb
 from huggingface_hub import login
+import os
+
 
 data = load_data()
 huggingface_api = os.environ['HUGGINGFACE_API_KEY']
