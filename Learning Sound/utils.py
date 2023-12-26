@@ -18,7 +18,7 @@ def load_data():
     data = load_dataset(data_url)
     feature_extractor = processor.feature_extractor
     tokenizer = processor.tokenizer
-    data = data.map(lambda batch: process_data(batch, feature_extractor, tokenizer), batched=True)
+    data = data.map(lambda batch: process_data(batch, feature_extractor, tokenizer))
     data = data.train_test_split(test_size = 0.2)
     train_data = data['train']
     valid_data = data['test']
