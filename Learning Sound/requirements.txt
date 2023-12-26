@@ -1,0 +1,10 @@
+jiwer
+evaluate
+datasets
+torch
+scipy
+transformers
+accelerate
+soundfile
+librosa
+tensorboard
