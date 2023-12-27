@@ -3,8 +3,9 @@ evaluate
 datasets
 torch
 scipy
-transformers
+transformers[torch]
 accelerate
 soundfile
 librosa
 tensorboard
+wandb
