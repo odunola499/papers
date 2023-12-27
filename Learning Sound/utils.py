@@ -37,7 +37,9 @@ class DataCollator:
             input_features, return_tensors="pt"
         )
         label_features = [{"input_ids": feature["labels"]} for feature in features]
-        labels_batch = self.processor.tokenizer.pad(label_features, return_tensors="pt", padding = 'max_length', max_length = 512)
+        labels_batch = self.processor.tokenizer.pad(
+            label_features, return_tensors="pt", padding="max_length", max_length=512
+        )
         labels = labels_batch["input_ids"].masked_fill(
             labels_batch.attention_mask.ne(1), -100
         )

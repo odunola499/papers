@@ -16,6 +16,7 @@ encoder_embed_dim = 1500
 decoder_embed_dim = 1500
 decoder_max_len = 512
 
+
 class LearnedPositionalEncoding(nn.Module):
     def __init__(self, max_seq_len=decoder_max_len, embedding_dim=decoder_embed_dim):
         super().__init__()
@@ -31,6 +32,7 @@ class LearnedPositionalEncoding(nn.Module):
 
         input_embeddings = input_embeddings + positional_embeddings
         return input_embeddings
+
 
 class SinusoidPositionalEmbedding(nn.Module):
     def __init__(
@@ -192,5 +194,3 @@ class DecoderLayer(nn.Module):
         out = self.cross_attention(out, context)
         out = self.mlp(out)
         return out
-    
-
