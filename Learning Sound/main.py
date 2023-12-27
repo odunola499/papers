@@ -50,4 +50,5 @@ trainer = Seq2SeqTrainer(
     tokenizer=processor.feature_extractor,
 )
 
+trainer.train()
 trainer.push_to_hub("training complete")
