@@ -16,8 +16,8 @@ def process_data(batch, feature_extractor, tokenizer):
 
 
 def load_data():
-    data = load_dataset(data_url)['train'].shuffle()
-    data = data.train_test_split(test_size=0.2)
+    data = load_dataset(data_url)["train"].shuffle()
+    data = data.train_test_split()
     train_data = data["train"]
     valid_data = data["test"]
     return train_data, valid_data
@@ -37,7 +37,7 @@ class DataCollator:
             input_features, return_tensors="pt"
         )
         label_features = [{"input_ids": feature["labels"]} for feature in features]
-        labels_batch = self.processor.tokenizer.pad(label_features, return_tensors="pt")
+        labels_batch = self.processor.tokenizer.pad(label_features, return_tensors="pt", padding = 'max_length', max_length = 512)
         labels = labels_batch["input_ids"].masked_fill(
             labels_batch.attention_mask.ne(1), -100
         )
