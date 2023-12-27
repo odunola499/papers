@@ -50,7 +50,7 @@ class DataCollator:
 
 
 model_url = "openai/whisper-small"
-data_url = "odunola/yoruba_audio_preprocessed"
+data_url = "odunola/yoruba-audio-preprocessed-2"
 processor = WhisperProcessor.from_pretrained(model_url, language="Yoruba", task = "transcribe")
 data_collator = DataCollator(processor=processor)
 metric = evaluate.load("wer")
