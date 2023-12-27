@@ -38,7 +38,7 @@ class DataCollator:
         )
         label_features = [{"input_ids": feature["labels"]} for feature in features]
         labels_batch = self.processor.tokenizer.pad(
-            label_features, return_tensors="pt", padding="max_length", max_length=512
+            label_features, return_tensors="pt", padding="max_length", max_length=256
         )
         labels = labels_batch["input_ids"].masked_fill(
             labels_batch.attention_mask.ne(1), -100
@@ -51,7 +51,7 @@ class DataCollator:
 
 model_url = "openai/whisper-small"
 data_url = "odunola/yoruba_audio_preprocessed"
-processor = WhisperProcessor.from_pretrained(model_url, language="Yoruba")
+processor = WhisperProcessor.from_pretrained(model_url, language="Yoruba", task = "transcribe")
 data_collator = DataCollator(processor=processor)
 metric = evaluate.load("wer")
 
