@@ -16,7 +16,7 @@ def process_data(batch, feature_extractor, tokenizer):
 
 
 def load_data():
-    data = load_dataset(data_url)['train']
+    data = load_dataset(data_url)['train'].shuffle()
     data = data.train_test_split(test_size=0.2)
     train_data = data["train"]
     valid_data = data["test"]

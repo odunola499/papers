@@ -13,7 +13,7 @@ login(token=os.environ["HUGGINGFACE_API_KEY"])
 model = WhisperForConditionalGeneration.from_pretrained(model_url)
 model.config.forced_decoder_ids = None
 model.config.suppress_tokens = []
-batch_size = 8
+batch_size = 16
 collator = data_collator
 train_data, valid_data = load_data()
 
