@@ -49,7 +49,7 @@ class DataCollator:
         return batch
 
 
-model_url = "openai/whisper-medium"
+model_url = "odunola/yoruba_whisper"
 data_url = "odunola/yoruba-audio-preprocessed-2"
 processor = WhisperProcessor.from_pretrained(model_url, language="Yoruba", task = "transcribe")
 data_collator = DataCollator(processor=processor)
