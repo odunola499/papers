@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Union
 import evaluate
 
 
+# will continue in free time. want to learn about distilling whisper
 def process_data(batch, feature_extractor, tokenizer):
     audio = batch["audio"]
     sentences = batch["sentence"]
@@ -37,9 +38,7 @@ class DataCollator:
             input_features, return_tensors="pt"
         )
         label_features = [{"input_ids": feature["labels"]} for feature in features]
-        labels_batch = self.processor.tokenizer.pad(
-            label_features, return_tensors="pt"
-        )
+        labels_batch = self.processor.tokenizer.pad(label_features, return_tensors="pt")
         labels = labels_batch["input_ids"].masked_fill(
             labels_batch.attention_mask.ne(1), -100
         )
@@ -49,9 +48,11 @@ class DataCollator:
         return batch
 
 
-model_url = "openai/whisper-tiny"
+model_url = "openai/whisper-small"
 data_url = "odunola/yoruba-audio-preprocessed-2"
-processor = WhisperProcessor.from_pretrained(model_url, language="Yoruba", task = "transcribe")
+processor = WhisperProcessor.from_pretrained(
+    model_url, language="Yoruba", task="transcribe"
+)
 data_collator = DataCollator(processor=processor)
 metric = evaluate.load("wer")
 

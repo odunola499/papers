@@ -3,7 +3,7 @@ from transformers import WhisperProcessor
 import torch
 from typing import Any, Dict, List, Union
 import evaluate
-
+from datasets import Audio
 
 # will continue in free time. want to learn about distilling whisper
 def process_data(batch, feature_extractor, tokenizer):
@@ -19,8 +19,8 @@ def process_data(batch, feature_extractor, tokenizer):
 def load_data():
     data = load_dataset(data_url)["train"].shuffle()
     data = data.train_test_split()
-    train_data = data["train"]
-    valid_data = data["test"]
+    train_data = data["train"].cast_column("audio", Audio(sampling_rate=16000))
+    valid_data = data["test"].cast_column("audio", Audio(sampling_rate=16000))
     return train_data, valid_data
 
 
@@ -45,14 +45,13 @@ class DataCollator:
         if (labels[:, 0] == self.processor.tokenizer.bos_token_id).all().cpu().item():
             labels = labels[:, 1:]
         batch["labels"] = labels
-        batch['input_features'] = input_features
         return batch
 
 
 model_url = "openai/whisper-tiny"
 data_url = "odunola/french-audio-preprocessed"
 processor = WhisperProcessor.from_pretrained(
-    model_url, language="French", task="translate"
+    model_url, language="french", task="translate"
 )
 data_collator = DataCollator(processor=processor)
 metric = evaluate.load("wer")
