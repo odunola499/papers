@@ -3,7 +3,7 @@ evaluate
 datasets
 torch
 scipy
-transformers[torch]
+transformers[torch]==4.36
 accelerate
 soundfile
 librosa
