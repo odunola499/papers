@@ -45,6 +45,7 @@ class DataCollator:
         if (labels[:, 0] == self.processor.tokenizer.bos_token_id).all().cpu().item():
             labels = labels[:, 1:]
         batch["labels"] = labels
+        batch['input_features'] = input_features
         return batch
 
 
